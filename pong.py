@@ -31,21 +31,20 @@ def move_ball():
     
     x_current = ball.winfo_x()
     y_current = ball.winfo_y()
-
-    # for y axis
-    if y_current <= 10 or y_current >= 415:
-        y_velocity = -y_velocity
-        ball.place_configure(x=ball.winfo_x() + x_velocity, y=ball.winfo_y() + 5 if y_velocity > 0 else -5)
-
-    ball.place_configure(x=ball.winfo_x() + x_velocity, y=ball.winfo_y() + y_velocity)
-    
-    # for x axis
     left_paddle_x = left_paddle.winfo_x() + left_paddle.winfo_width()
     left_paddle_y = left_paddle.winfo_y() - 10
     right_paddle_x = right_paddle.winfo_x()
     right_paddle_y = right_paddle.winfo_y() - 10
 
-    # ball touches either of the paddles
+    # for y axis
+    if y_current <= 0:
+        y_velocity = -y_velocity
+        ball.place_configure(x=x_current + x_velocity, y=y_current + y_velocity)
+    elif y_current + 25 >= 425:
+        y_velocity = -y_velocity
+        ball.place_configure(x=x_current + x_velocity, y=y_current - 25)
+    
+    # for x axis
     if x_current <= left_paddle_x and y_current >= left_paddle_y and y_current <= left_paddle_y + 110:
         x_velocity = -x_velocity
         inc_speed()
@@ -62,6 +61,8 @@ def move_ball():
     elif x_current > 555:
         left_score.config(text=int(left_score.cget("text")) + 1)
         initialize()
+    else:
+        ball.place_configure(x=ball.winfo_x() + x_velocity, y=ball.winfo_y() + y_velocity)
 
 def move_paddles():
     global gameStarted
@@ -85,12 +86,12 @@ def initialize():
 
     ball.place_configure(x=287.5, y=225)
 
-    x_velocity = randint(-3,3)
+    x_velocity = randint(2,3) * randint(-1,1)
     while x_velocity == 0:
-        x_velocity = randint(-3,3)
-    y_velocity = randint(-5,5)
+        x_velocity = randint(2,3) * randint(-1,1)
+    y_velocity = randint(2,3) * randint(-1,1)
     while y_velocity == 0:
-        y_velocity = randint(-5,5)
+        y_velocity = randint(2,3) * randint(-1,1)
 
 def inc_speed():
     global x_velocity, y_velocity
