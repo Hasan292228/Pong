@@ -8,56 +8,54 @@ keys_pressed = set()
 x_velocity = 0
 y_velocity = 0
 
-def calc_velocity():
-    global x_velocity, y_velocity
-    x_velocity = randint(-3,3)
-    while x_velocity == 0:
-        x_velocity = randint(-3,3)
-    y_velocity = randint(-5,5)
-    while y_velocity == 0:
-        y_velocity = randint(-5,5)
-
 def start_game():
     global isRunning, gameStarted
-    if not isRunning:
-        isRunning = True
-        y = 0
-        game_frame.place(x=0, y=-450)
-        while y < 450:
-            y += 1
-            start_frame.place_configure(y=y)
-            game_frame.place_configure(y=y-450)
-            time.sleep(0.001)
-            pong.update()
-        start_frame.place_forget()
-        gameStarted = True
-        initialize()
-        game_loop()
+    if isRunning:
+        return
+    isRunning = True
+    y = 0
+    game_frame.place(x=0, y=-450)
+    while y < 450:
+        y += 1
+        start_frame.place_configure(y=y)
+        game_frame.place_configure(y=y-450)
+        time.sleep(0.001)
+        pong.update()
+    start_frame.place_forget()
+    gameStarted = True
+    initialize()
+    game_loop()
 
 def move_ball():
     global x_velocity, y_velocity
+    
     x_current = ball.winfo_x()
     y_current = ball.winfo_y()
 
     # for y axis
-    if y_current <= 0 or y_current >= 425:
+    if y_current <= 10 or y_current >= 415:
         y_velocity = -y_velocity
+        ball.place_configure(x=ball.winfo_x() + x_velocity, y=ball.winfo_y() + 5 if y_velocity > 0 else -5)
 
     ball.place_configure(x=ball.winfo_x() + x_velocity, y=ball.winfo_y() + y_velocity)
     
     # for x axis
     left_paddle_x = left_paddle.winfo_x() + left_paddle.winfo_width()
-    left_paddle_y = left_paddle.winfo_y() - 5
+    left_paddle_y = left_paddle.winfo_y() - 10
     right_paddle_x = right_paddle.winfo_x()
-    right_paddle_y = right_paddle.winfo_y() - 5
+    right_paddle_y = right_paddle.winfo_y() - 10
 
-    if x_current <= left_paddle_x and y_current >= left_paddle_y and y_current <= left_paddle_y + 105:
+    # ball touches either of the paddles
+    if x_current <= left_paddle_x and y_current >= left_paddle_y and y_current <= left_paddle_y + 110:
         x_velocity = -x_velocity
+        inc_speed()
         ball.place_configure(x=ball.winfo_x() + x_velocity, y=ball.winfo_y() + y_velocity)
-    elif x_current + 25 >= right_paddle_x and y_current >= right_paddle_y and y_current <= right_paddle_y + 105:
+    elif x_current + 25 >= right_paddle_x and y_current >= right_paddle_y and y_current <= right_paddle_y + 110:
         x_velocity = -x_velocity
+        inc_speed()
         ball.place_configure(x=ball.winfo_x() + x_velocity, y=ball.winfo_y() + y_velocity)
 
+    # ball not touching any paddle
     elif x_current < 20:
         right_score.config(text=int(right_score.cget("text")) + 1)
         initialize()
@@ -66,48 +64,51 @@ def move_ball():
         initialize()
 
 def move_paddles():
+    global gameStarted
+    if not gameStarted:
+        return
     if "w" in keys_pressed:
-        move_left_paddle_up()
+        if left_paddle.winfo_y() > 15:
+            left_paddle.place_configure(y=left_paddle.winfo_y() - 15)
     if "s" in keys_pressed:
-        move_left_paddle_down()
+        if left_paddle.winfo_y() < 335:
+            left_paddle.place_configure(y=left_paddle.winfo_y() + 15)
     if "Up" in keys_pressed:
-        move_right_paddle_up()
+        if right_paddle.winfo_y() > 15:
+            right_paddle.place_configure(y=right_paddle.winfo_y() - 15)
     if "Down" in keys_pressed:
-        move_right_paddle_down()
+        if right_paddle.winfo_y() < 335:
+            right_paddle.place_configure(y=right_paddle.winfo_y() + 15)
 
 def initialize():
+    global x_velocity, y_velocity
+
     ball.place_configure(x=287.5, y=225)
-    calc_velocity()
+
+    x_velocity = randint(-3,3)
+    while x_velocity == 0:
+        x_velocity = randint(-3,3)
+    y_velocity = randint(-5,5)
+    while y_velocity == 0:
+        y_velocity = randint(-5,5)
+
+def inc_speed():
+    global x_velocity, y_velocity
+    if x_velocity < 10:
+        if x_velocity > 0:
+            x_velocity += 0.5
+        else:
+            x_velocity -= 0.5
+    if y_velocity < 10:
+        if y_velocity > 0:
+            y_velocity += 0.5
+        else:
+            y_velocity -= 0.5
 
 def game_loop():
     move_paddles()
     move_ball()
     pong.after(16, game_loop)
-
-# movement functions
-def move_left_paddle_up():
-    global gameStarted
-    if gameStarted:
-        if left_paddle.winfo_y() > 15:
-            left_paddle.place_configure(y=left_paddle.winfo_y() - 15)
-
-def move_right_paddle_up():
-    global gameStarted
-    if gameStarted:
-        if right_paddle.winfo_y() > 15:
-            right_paddle.place_configure(y=right_paddle.winfo_y() - 15)
-    
-def move_left_paddle_down():
-    global gameStarted
-    if gameStarted:
-        if left_paddle.winfo_y() < 335:
-            left_paddle.place_configure(y=left_paddle.winfo_y() + 15)   
-    
-def move_right_paddle_down():
-    global gameStarted
-    if gameStarted:
-        if right_paddle.winfo_y() < 335:
-            right_paddle.place_configure(y=right_paddle.winfo_y() + 15)
 
 # create the main window
 pong = tk.Tk()
