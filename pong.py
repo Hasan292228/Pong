@@ -34,15 +34,15 @@ def move_ball():
     left_paddle_x = left_paddle.winfo_x() + left_paddle.winfo_width()
     left_paddle_y = left_paddle.winfo_y() - 10
     right_paddle_x = right_paddle.winfo_x()
-    right_paddle_y = right_paddle.winfo_y() - 10
+    right_paddle_y = right_paddle.winfo_y() - 10    
 
     # for y axis
     if y_current <= 0:
         y_velocity = -y_velocity
         ball.place_configure(x=x_current + x_velocity, y=y_current + y_velocity)
-    elif y_current + 25 >= 425:
+    elif y_current + 25 >= 450:
         y_velocity = -y_velocity
-        ball.place_configure(x=x_current + x_velocity, y=y_current - 25)
+        ball.place_configure(x=x_current, y=415)
     
     # for x axis
     if x_current <= left_paddle_x and y_current >= left_paddle_y and y_current <= left_paddle_y + 110:
@@ -69,16 +69,16 @@ def move_paddles():
     if not gameStarted:
         return
     if "w" in keys_pressed:
-        if left_paddle.winfo_y() > 15:
+        if left_paddle.winfo_y() > 5:
             left_paddle.place_configure(y=left_paddle.winfo_y() - 15)
     if "s" in keys_pressed:
-        if left_paddle.winfo_y() < 335:
+        if left_paddle.winfo_y() < 345:
             left_paddle.place_configure(y=left_paddle.winfo_y() + 15)
     if "Up" in keys_pressed:
-        if right_paddle.winfo_y() > 15:
+        if right_paddle.winfo_y() > 5:
             right_paddle.place_configure(y=right_paddle.winfo_y() - 15)
     if "Down" in keys_pressed:
-        if right_paddle.winfo_y() < 335:
+        if right_paddle.winfo_y() < 345:
             right_paddle.place_configure(y=right_paddle.winfo_y() + 15)
 
 def initialize():
