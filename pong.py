@@ -3,7 +3,6 @@ import time
 from random import randint
 
 isRunning = False
-gameStarted = False
 keys_pressed = set()
 x_velocity = 0
 y_velocity = 0
@@ -22,7 +21,6 @@ def start_game():
         time.sleep(0.001)
         pong.update()
     start_frame.place_forget()
-    gameStarted = True
     initialize()
     loop()
 
@@ -64,9 +62,6 @@ def move_ball():
         return
 
 def move_paddles():
-    global gameStarted
-    if not gameStarted:
-        return
     if "w" in keys_pressed:
         if left_paddle.winfo_y() >= 15:
             left_paddle.place_configure(y=left_paddle.winfo_y() - 15)
