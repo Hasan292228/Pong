@@ -24,14 +24,14 @@ def start_game():
     start_frame.place_forget()
     gameStarted = True
     initialize()
-    game_loop()
+    loop()
 
 def move_ball():
     global x_velocity, y_velocity
 
     ball.place_configure(x=ball.winfo_x() + x_velocity, y=ball.winfo_y() + y_velocity)
 
-    # for y axis
+    # ball touches top or bottom
     if ball.winfo_y() <= 0:
         y_velocity = -y_velocity
         ball.place_configure(x=ball.winfo_x() + x_velocity, y=ball.winfo_y() + 10)
@@ -41,7 +41,7 @@ def move_ball():
         ball.place_configure(x=ball.winfo_x(), y=ball.winfo_y() - 10)
         return
 
-    # for x axis
+    # ball touches paddles
     if ball.winfo_x() <= left_paddle.winfo_x() + 15 and ball.winfo_y() >= left_paddle.winfo_y() - 5 and ball.winfo_y() <= left_paddle.winfo_y() + 105:
         inc_speed()
         x_velocity = -x_velocity
@@ -53,7 +53,7 @@ def move_ball():
         ball.place_configure(x=ball.winfo_x() - 10, y=ball.winfo_y())
         return
 
-    # ball not touching any paddle
+    # ball doesnt touch any paddle
     if ball.winfo_x() < 15:
         right_score.config(text=int(right_score.cget("text")) + 1)
         initialize()
@@ -68,16 +68,16 @@ def move_paddles():
     if not gameStarted:
         return
     if "w" in keys_pressed:
-        if left_paddle.winfo_y() > 15:
+        if left_paddle.winfo_y() >= 15:
             left_paddle.place_configure(y=left_paddle.winfo_y() - 15)
     if "s" in keys_pressed:
-        if left_paddle.winfo_y() < 335:
+        if left_paddle.winfo_y() <= 335:
             left_paddle.place_configure(y=left_paddle.winfo_y() + 15)
     if "Up" in keys_pressed:
-        if right_paddle.winfo_y() > 15:
+        if right_paddle.winfo_y() >= 15:
             right_paddle.place_configure(y=right_paddle.winfo_y() - 15)
     if "Down" in keys_pressed:
-        if right_paddle.winfo_y() < 335:
+        if right_paddle.winfo_y() <= 335:
             right_paddle.place_configure(y=right_paddle.winfo_y() + 15)
 
 def initialize():
@@ -103,10 +103,10 @@ def inc_speed():
         else:
             y_velocity -= 1
 
-def game_loop():
+def loop():
     move_paddles()
     move_ball()
-    pong.after(16, game_loop)
+    pong.after(16, loop)
 
 # create the main window
 pong = tk.Tk()
