@@ -127,11 +127,11 @@ pong_label = tk.Label(start_frame, text="Pong", font=("Monaco", 50), bg="black",
 pong_label.place(x=222, y=50)
 
 # # single player button
-# single_play_button = tk.Button(start_frame, text="Single Player", width=20, font=("Monaco", 20), bg="#AAAAAA", fg="black", command=lambda: start_game())
-# single_play_button.place(x=150, y=200)
+# single_play_button = tk.Button(start_frame, text="Single Player", width=15, font=("Monaco", 20), bg="#AAAAAA", fg="black", command=start_game)
+# single_play_button.place(x=182, y=200)
 
 # two player button
-two_play_button = tk.Button(start_frame, text="Two Players", width=15, font=("Monaco", 20), bg="#AAAAAA", fg="black", command=lambda: start_game())
+two_play_button = tk.Button(start_frame, text="Two Players", width=15, font=("Monaco", 20), bg="#AAAAAA", fg="black", command=start_game)
 two_play_button.place(x=182, y=250)
 
 
