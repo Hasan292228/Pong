@@ -2,13 +2,15 @@ import tkinter as tk
 import time
 from random import randint
 
+
 isRunning = False
 keys_pressed = set()
 x_velocity = 0
 y_velocity = 0
 
+
 def start_game():
-    global isRunning, gameStarted
+    global isRunning
     if isRunning:
         return
     isRunning = True
@@ -23,6 +25,29 @@ def start_game():
     start_frame.place_forget()
     initialize()
     loop()
+
+def initialize():
+    global x_velocity, y_velocity
+
+    ball.place_configure(x=288, y=225)
+
+    randomint = randint(0, 1)
+    x_velocity = randint(1, 3) if randomint == 0 else -randint(1, 3)
+    randomint = randint(0, 1)
+    y_velocity = randint(1, 3) if randomint == 0 else -randint(1, 3)
+
+def inc_speed():
+    global x_velocity, y_velocity
+    if x_velocity > -10 and x_velocity < 10:
+        if x_velocity > 0:
+            x_velocity += 1
+        else:
+            x_velocity -= 1
+    if y_velocity > -10 and y_velocity < 10:
+        if y_velocity > 0:
+            y_velocity += 1
+        else:
+            y_velocity -= 1
 
 def move_ball():
     global x_velocity, y_velocity
@@ -75,33 +100,11 @@ def move_paddles():
         if right_paddle.winfo_y() <= 335:
             right_paddle.place_configure(y=right_paddle.winfo_y() + 15)
 
-def initialize():
-    global x_velocity, y_velocity
-
-    ball.place_configure(x=288, y=225)
-
-    randomint = randint(0, 1)
-    x_velocity = randint(1, 3) if randomint == 0 else -randint(1, 3)
-    randomint = randint(0, 1)
-    y_velocity = randint(1, 3) if randomint == 0 else -randint(1, 3)
-
-def inc_speed():
-    global x_velocity, y_velocity
-    if x_velocity > -10 and x_velocity < 10:
-        if x_velocity > 0:
-            x_velocity += 1
-        else:
-            x_velocity -= 1
-    if y_velocity > -10 and y_velocity < 10:
-        if y_velocity > 0:
-            y_velocity += 1
-        else:
-            y_velocity -= 1
-
 def loop():
     move_paddles()
     move_ball()
     pong.after(16, loop)
+
 
 # create the main window
 pong = tk.Tk()
@@ -114,21 +117,23 @@ pong.configure(bg="black")
 pong.bind("<KeyPress>", lambda event: keys_pressed.add(event.keysym))  
 pong.bind("<KeyRelease>", lambda event: keys_pressed.discard(event.keysym))
 
+
 # start frame
 start_frame = tk.Frame(pong, width=600, height=450, bg="black")
 start_frame.place(x=0, y=0)
 
 # pong label
 pong_label = tk.Label(start_frame, text="Pong", font=("Monaco", 50), bg="black", fg="white")
-pong_label.place(x=210, y=50)
+pong_label.place(x=222, y=50)
 
-# single player button
-single_play_button = tk.Button(start_frame, text="Single Player", width=20, font=("Monaco", 20), bg="#AAAAAA", fg="black", command=lambda: start_game())
-single_play_button.place(x=150, y=200)
+# # single player button
+# single_play_button = tk.Button(start_frame, text="Single Player", width=20, font=("Monaco", 20), bg="#AAAAAA", fg="black", command=lambda: start_game())
+# single_play_button.place(x=150, y=200)
 
 # two player button
-two_play_button = tk.Button(start_frame, text="Two Players", width=20, font=("Monaco", 20), bg="#AAAAAA", fg="black", command=lambda: start_game())
-two_play_button.place(x=150, y=250)
+two_play_button = tk.Button(start_frame, text="Two Players", width=15, font=("Monaco", 20), bg="#AAAAAA", fg="black", command=lambda: start_game())
+two_play_button.place(x=182, y=250)
+
 
 # game frame
 game_frame = tk.Frame(pong, width=600, height=450, bg="black")
@@ -157,6 +162,7 @@ right_score.place(x=400, y=20)
 ball = tk.Canvas(game_frame, width=25, height=25, bg="black", highlightthickness=0)
 ball.place(x=288, y=225)
 drawn_ball = ball.create_oval(0, 0, 25, 25, fill="white")
+
 
 # start the game
 pong.mainloop()
