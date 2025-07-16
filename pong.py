@@ -98,7 +98,7 @@ def inc_speed():
             y_velocity -= 1
 
 def set_diff(diff):
-    global difficulty, bot_paddle_speed
+    global difficulty, bot_paddle_speed, y_velocity
     if difficulty != 'None':
         return
     elif diff == 'Easy':
@@ -110,6 +110,7 @@ def set_diff(diff):
     elif diff == 'Impossible':
         difficulty = 'Impossible'
         bot_paddle_speed = 8
+        y_velocity = 4
     start_game_single()
 
 def move_ball():
