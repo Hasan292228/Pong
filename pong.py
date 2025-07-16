@@ -79,10 +79,10 @@ def initialize():
 
     time.sleep(0.5)
 
-    randomint = randint(0, 1)
-    x_velocity = randint(2, 4) if randomint == 0 else -randint(2, 4)
-    randomint = randint(0, 1)
-    y_velocity = randint(2, 4) if randomint == 0 else -randint(2, 4)
+    random_int = randint(0, 1)
+    x_velocity = randint(2, 4) if random_int == 0 else -randint(2, 4)
+    random_int = randint(0, 1)
+    y_velocity = randint(2, 4) if random_int == 0 else -randint(2, 4)
 
 def inc_speed():
     global x_velocity, y_velocity
@@ -128,7 +128,7 @@ def move_ball():
     right_paddle_left = right_paddle.winfo_x()
     right_paddle_right = right_paddle.winfo_x() + 10
     right_paddle_top = right_paddle.winfo_y()
-    right_paddle_y_bottom = right_paddle.winfo_y() + 100
+    right_paddle_bottom = right_paddle.winfo_y() + 100
     
     ball.place_configure(x=ball_left + x_velocity, y=ball_top + y_velocity)
 
@@ -148,7 +148,7 @@ def move_ball():
         inc_speed()
         ball.place_configure(x=21, y=ball_top)
         return
-    if (ball_right >= right_paddle_left and ball_left <= right_paddle_left and ball_top <= right_paddle_y_bottom and ball_bottom >= right_paddle_top):
+    if (ball_right >= right_paddle_left and ball_left <= right_paddle_left and ball_top <= right_paddle_bottom and ball_bottom >= right_paddle_top):
         x_velocity = -x_velocity
         inc_speed()
         ball.place_configure(x=554, y=ball_top)
