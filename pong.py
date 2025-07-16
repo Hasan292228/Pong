@@ -7,8 +7,9 @@ isRunning = False
 keys_pressed = set()
 x_velocity = 0
 y_velocity = 0
-diffuculty = 'None' # Easy, Normal, Impossible
+difficulty = 'None' # Easy, Normal, Impossible
 mode = 'TP' # SP, TP
+bot_paddle_speed = 0
 
 
 def start_game_two():
@@ -22,12 +23,11 @@ def start_game_two():
         y += 1
         start_frame.place_configure(y=y)
         game_frame.place_configure(y=y-450)
-        time.sleep(0.001)
         pong.update()
     initialize()
     loop()
 
-def single_game_options():
+def game_options():
     global isRunning
     if isRunning:
         return
@@ -38,7 +38,6 @@ def single_game_options():
         y += 1
         start_frame.place_configure(y=y)
         options_frame.place_configure(y=y-450)
-        time.sleep(0.001)
         pong.update()
 
 def start_game_single():
@@ -50,18 +49,22 @@ def start_game_single():
         y += 1
         options_frame.place_configure(y=y)
         game_frame.place_configure(y=y-450)
-        time.sleep(0.001)
         pong.update()
     initialize()
     loop()
 
-def go_to_menu():
-    global isRunning, diffuculty, mode
+def reset_game():
+    global isRunning, difficulty, mode, bot_paddle_speed
     if not isRunning:
         return
     isRunning = False
-    diffuculty = 'None'
+    difficulty = 'None'
     mode = 'TP'
+    bot_paddle_speed = 0
+    left_score.configure(text='0')
+    right_score.configure(text='0')
+    initialize()
+    winner_frame.place(x=0, y=-450)
     options_frame.place(x=0, y=-450)
     game_frame.place(x=0, y=-450)
     start_frame.place(x=0, y=0)
@@ -70,14 +73,16 @@ def initialize():
     global x_velocity, y_velocity
     
     ball.place_configure(x=288, y=225)
+    left_paddle.place_configure(x=10, y=175)
+    right_paddle.place_configure(x=580, y=175)
     pong.update()
 
     time.sleep(0.5)
 
     randomint = randint(0, 1)
-    x_velocity = randint(1, 3) if randomint == 0 else -randint(1, 3)
+    x_velocity = randint(2, 4) if randomint == 0 else -randint(2, 4)
     randomint = randint(0, 1)
-    y_velocity = randint(1, 3) if randomint == 0 else -randint(1, 3)
+    y_velocity = randint(2, 4) if randomint == 0 else -randint(2, 4)
 
 def inc_speed():
     global x_velocity, y_velocity
@@ -93,17 +98,20 @@ def inc_speed():
             y_velocity -= 1
 
 def set_diff(diff):
-    global diffuculty
-    if diffuculty != 'None':
+    global difficulty, bot_paddle_speed
+    if difficulty != 'None':
         return
-    if diff == 'Easy':
-        diffuculty = 'Easy'
+    elif diff == 'Easy':
+        difficulty = 'Easy'
+        bot_paddle_speed = 3
         start_game_single()
-    if diff == 'Normal':
-        diffuculty = 'Normal'
+    elif diff == 'Normal':
+        difficulty = 'Normal'
+        bot_paddle_speed = 4
         start_game_single()
-    if diff == 'Impossible':
-        diffuculty = 'Impossible'
+    elif diff == 'Impossible':
+        difficulty = 'Impossible'
+        bot_paddle_speed = 10
         start_game_single()
 
 def move_ball():
@@ -111,7 +119,22 @@ def move_ball():
 
     ball.place_configure(x=ball.winfo_x() + x_velocity, y=ball.winfo_y() + y_velocity)
 
-    # ball touches top or bottom
+    ball_x_left = ball.winfo_x()
+    ball_x_right = ball.winfo_x() + 25
+    ball_y_top = ball.winfo_y()
+    ball_y_bottom = ball.winfo_y() + 25
+
+    left_paddle_x_left = left_paddle.winfo_x()
+    left_paddle_x_right = left_paddle.winfo_x() + 10
+    left_paddle_y_top = left_paddle.winfo_y()
+    left_paddle_y_bottom = left_paddle.winfo_y() + 100
+
+    right_paddle_x_left = right_paddle.winfo_x()
+    right_paddle_x_right = right_paddle.winfo_x() + 10
+    right_paddle_y_top = right_paddle.winfo_y()
+    right_paddle_y_bottom = right_paddle.winfo_y() + 100
+    
+    # ball hits top or bottom
     if ball.winfo_y() <= 0:
         y_velocity = -y_velocity
         ball.place_configure(x=ball.winfo_x() + x_velocity, y=ball.winfo_y() + 10)
@@ -121,19 +144,19 @@ def move_ball():
         ball.place_configure(x=ball.winfo_x(), y=ball.winfo_y() - 10)
         return
 
-    # ball touches paddles
-    if ball.winfo_x() <= left_paddle.winfo_x() + 15 and ball.winfo_y() >= left_paddle.winfo_y() - 5 and ball.winfo_y() <= left_paddle.winfo_y() + 105:
+    # ball hits paddles
+    if ball.winfo_x() <= left_paddle.winfo_x() + 15 and ball.winfo_y() >= left_paddle.winfo_y() - 5 and ball.winfo_y() + 25 <= left_paddle.winfo_y() + 105:
         inc_speed()
         x_velocity = -x_velocity
         ball.place_configure(x=ball.winfo_x() + 10, y=ball.winfo_y())
         return
-    if ball.winfo_x() + 25 >= right_paddle.winfo_x() - 5 and ball.winfo_y() >= right_paddle.winfo_y() - 5 and ball.winfo_y() <= right_paddle.winfo_y() + 105:
+    if ball.winfo_x() + 25 >= right_paddle.winfo_x() - 5 and ball.winfo_y() >= right_paddle.winfo_y() - 5 and ball.winfo_y() + 25 <= right_paddle.winfo_y() + 105:
         inc_speed()
         x_velocity = -x_velocity
         ball.place_configure(x=ball.winfo_x() - 10, y=ball.winfo_y())
-        return
+        return 
 
-    # ball doesnt touch any paddle
+    # ball didnt hit any paddle
     if ball.winfo_x() < 15:
         right_score.config(text=int(right_score.cget("text")) + 1)
         initialize()
@@ -161,39 +184,42 @@ def paddle_movement():
             right_paddle.place_configure(y=right_paddle.winfo_y() + 15)
 
 def move_right_paddle():
-    global diffuculty, x_velocity, y_velocity
-    if diffuculty == 'Easy':
-        if x_velocity > 0:
-            if ball.winfo_y() + 12.5 < right_paddle.winfo_y() + 50:
-                if right_paddle.winfo_y() >= 15:
-                    right_paddle.place_configure(y=right_paddle.winfo_y() - 3)
-            elif ball.winfo_y() + 12.5 > right_paddle.winfo_y() + 50:
-                if right_paddle.winfo_y() <= 335:
-                    right_paddle.place_configure(y=right_paddle.winfo_y() + 3)
-    if diffuculty == 'Normal':
-        if ball.winfo_y() + 12.5 < right_paddle.winfo_y() + 50:
-            if right_paddle.winfo_y() >= 15:
-                right_paddle.place_configure(y=right_paddle.winfo_y() - 4)
-        elif ball.winfo_y() + 12.5 > right_paddle.winfo_y() + 50:
-            if right_paddle.winfo_y() <= 335:
-                right_paddle.place_configure(y=right_paddle.winfo_y() + 4)
-    if diffuculty == 'Impossible':
-        if ball.winfo_y() + 12.5 < right_paddle.winfo_y() + 50:
-            if right_paddle.winfo_y() >= 15:    
-                right_paddle.place_configure(y=right_paddle.winfo_y() - 8)
-        elif ball.winfo_y() + 12.5 > right_paddle.winfo_y() + 50:
-            if right_paddle.winfo_y() <= 335:
-                right_paddle.place_configure(y=right_paddle.winfo_y() + 8)
+    global difficulty, x_velocity, y_velocity, bot_paddle_speed
+    if x_velocity < 0 and difficulty == 'Easy':
+        return
+    if ball.winfo_y() + 12.5 < right_paddle.winfo_y() + 50:
+        if right_paddle.winfo_y() >= 15:
+            right_paddle.place_configure(y=right_paddle.winfo_y() - bot_paddle_speed)
+    elif ball.winfo_y() + 12.5 > right_paddle.winfo_y() + 50:
+        if right_paddle.winfo_y() <= 335:
+            right_paddle.place_configure(y=right_paddle.winfo_y() + bot_paddle_speed)  
+
+def check_winner():
+    global mode
+    if int(left_score.cget('text')) == 5:
+            game_frame.place(x=0, y=-450)
+            winner_label.configure(text='Player 1 Won!' if mode == 'TP' else 'You Won!')
+            pong.update()
+            winner_frame.place(x=0, y=0)
+            return True
+    if int(right_score.cget('text')) == 5:
+        game_frame.place(x=0, y=-450)
+        winner_label.configure(text='Player 2 Won!' if mode == 'TP' else 'You Lost!')
+        pong.update()
+        winner_frame.place(x=0, y=0)
+        return True
 
 def loop():
-    global mode, diffuculty
+    global mode, difficulty
     paddle_movement()
     move_ball()
     if mode == 'SP':
         move_right_paddle()
     if 'Escape' in keys_pressed:
-        go_to_menu()
-        initialize()
+        reset_game()
+        return
+    if check_winner():
+        pong.after(2000, reset_game)
         return
     pong.after(16, loop)
 
@@ -219,7 +245,7 @@ pong_label = tk.Label(start_frame, text="Pong", font=("Monaco", 50), bg="black",
 pong_label.place(x=222, y=50)
 
 # single player button
-single_play_button = tk.Button(start_frame, text="Single Player", width=15, font=("Monaco", 20), bg="#AAAAAA", fg="black", command=single_game_options)
+single_play_button = tk.Button(start_frame, text="Single Player", width=15, font=("Monaco", 20), bg="#AAAAAA", fg="black", command=game_options)
 single_play_button.place(x=182, y=200)
 
 # two player button
@@ -259,9 +285,9 @@ drawn_ball = ball.create_oval(0, 0, 25, 25, fill="white")
 # options frame
 options_frame = tk.Frame(pong, width=600, height=450, bg="black")
 
-# create diffuculty label
-diffuculty_label = tk.Label(options_frame, text="Diffuculty:", font=("Monaco", 30), bg="black", fg="white")
-diffuculty_label.place(x=180, y=50)
+# create difficulty label
+difficulty_label = tk.Label(options_frame, text="Difficulty:", font=("Monaco", 30), bg="black", fg="white")
+difficulty_label.place(x=180, y=50)
 
 # easy mode button
 easy_mode = tk.Button(options_frame, text="Easy", width=10, font=("Monaco", 20), bg="#AAAAAA", fg="black", command=lambda: set_diff('Easy'))
@@ -275,6 +301,13 @@ normal_mode.place(x=305, y=200)
 impossible_mode = tk.Button(options_frame, text="Impossible", width=20, font=("Monaco", 20), bg="#AAAAAA", fg="red", command=lambda: set_diff('Impossible'))
 impossible_mode.place(x=145, y=252)
 
+
+# winner frame
+winner_frame = tk.Frame(pong, width=600, height=450, bg="black")
+
+# winner label
+winner_label = tk.Label(winner_frame, text='', font=("Monaco", 30), bg="black", fg="white")
+winner_label.pack(anchor='center', padx= 50, pady=50)
 
 # start the game
 pong.mainloop()
