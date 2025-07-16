@@ -7,9 +7,9 @@ isRunning = False
 keys_pressed = set()
 x_velocity = 0
 y_velocity = 0
+bot_paddle_speed = 0
 difficulty = 'None' # Easy, Normal, Impossible
 mode = 'TP' # SP, TP
-bot_paddle_speed = 0
 
 
 def start_game_two():
@@ -109,7 +109,7 @@ def set_diff(diff):
         bot_paddle_speed = 4
     elif diff == 'Impossible':
         difficulty = 'Impossible'
-        bot_paddle_speed = 10
+        bot_paddle_speed = 8
     start_game_single()
 
 def move_ball():
