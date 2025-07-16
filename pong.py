@@ -104,56 +104,54 @@ def set_diff(diff):
     elif diff == 'Easy':
         difficulty = 'Easy'
         bot_paddle_speed = 3
-        start_game_single()
     elif diff == 'Normal':
         difficulty = 'Normal'
         bot_paddle_speed = 4
-        start_game_single()
     elif diff == 'Impossible':
         difficulty = 'Impossible'
         bot_paddle_speed = 10
-        start_game_single()
+    start_game_single()
 
 def move_ball():
     global x_velocity, y_velocity
 
-    ball.place_configure(x=ball.winfo_x() + x_velocity, y=ball.winfo_y() + y_velocity)
+    ball_left = ball.winfo_x()
+    ball_right = ball.winfo_x() + 25
+    ball_top = ball.winfo_y()
+    ball_bottom = ball.winfo_y() + 25
 
-    ball_x_left = ball.winfo_x()
-    ball_x_right = ball.winfo_x() + 25
-    ball_y_top = ball.winfo_y()
-    ball_y_bottom = ball.winfo_y() + 25
+    left_paddle_left = left_paddle.winfo_x()
+    left_paddle_right = left_paddle.winfo_x() + 10
+    left_paddle_top = left_paddle.winfo_y()
+    left_paddle_bottom = left_paddle.winfo_y() + 100
 
-    left_paddle_x_left = left_paddle.winfo_x()
-    left_paddle_x_right = left_paddle.winfo_x() + 10
-    left_paddle_y_top = left_paddle.winfo_y()
-    left_paddle_y_bottom = left_paddle.winfo_y() + 100
-
-    right_paddle_x_left = right_paddle.winfo_x()
-    right_paddle_x_right = right_paddle.winfo_x() + 10
-    right_paddle_y_top = right_paddle.winfo_y()
+    right_paddle_left = right_paddle.winfo_x()
+    right_paddle_right = right_paddle.winfo_x() + 10
+    right_paddle_top = right_paddle.winfo_y()
     right_paddle_y_bottom = right_paddle.winfo_y() + 100
     
+    ball.place_configure(x=ball_left + x_velocity, y=ball_top + y_velocity)
+
     # ball hits top or bottom
-    if ball.winfo_y() <= 0:
+    if ball_top <= 0:
         y_velocity = -y_velocity
-        ball.place_configure(x=ball.winfo_x() + x_velocity, y=ball.winfo_y() + 10)
+        ball.place_configure(x=ball_left, y=1)
         return
-    if ball.winfo_y() + 25 >= 450:
+    elif ball_bottom >= 450:
         y_velocity = -y_velocity
-        ball.place_configure(x=ball.winfo_x(), y=ball.winfo_y() - 10)
+        ball.place_configure(x=ball_left, y=424)
         return
 
     # ball hits paddles
-    if ball.winfo_x() <= left_paddle.winfo_x() + 15 and ball.winfo_y() >= left_paddle.winfo_y() - 5 and ball.winfo_y() + 25 <= left_paddle.winfo_y() + 105:
-        inc_speed()
+    if (ball_left <= left_paddle_right and ball_right >= left_paddle_left and ball_top <= left_paddle_bottom and ball_bottom >= left_paddle_top):
         x_velocity = -x_velocity
-        ball.place_configure(x=ball.winfo_x() + 10, y=ball.winfo_y())
+        inc_speed()
+        ball.place_configure(x=21, y=ball_top)
         return
-    if ball.winfo_x() + 25 >= right_paddle.winfo_x() - 5 and ball.winfo_y() >= right_paddle.winfo_y() - 5 and ball.winfo_y() + 25 <= right_paddle.winfo_y() + 105:
-        inc_speed()
+    if (ball_right >= right_paddle_left and ball_left <= right_paddle_left and ball_top <= right_paddle_y_bottom and ball_bottom >= right_paddle_top):
         x_velocity = -x_velocity
-        ball.place_configure(x=ball.winfo_x() - 10, y=ball.winfo_y())
+        inc_speed()
+        ball.place_configure(x=554, y=ball_top)
         return 
 
     # ball didnt hit any paddle
