@@ -7,9 +7,11 @@ isRunning = False
 keys_pressed = set()
 x_velocity = 0
 y_velocity = 0
+diffuculty = 'None' # Easy, Normal, Impossible
+mode = 'TP' # SP, TP
 
 
-def start_game():
+def start_game_two():
     global isRunning
     if isRunning:
         return
@@ -22,14 +24,55 @@ def start_game():
         game_frame.place_configure(y=y-450)
         time.sleep(0.001)
         pong.update()
-    start_frame.place_forget()
     initialize()
     loop()
 
+def single_game_options():
+    global isRunning
+    if isRunning:
+        return
+    isRunning = True
+    y = 0
+    options_frame.place(x=0, y=-450)
+    while y < 450:
+        y += 1
+        start_frame.place_configure(y=y)
+        options_frame.place_configure(y=y-450)
+        time.sleep(0.001)
+        pong.update()
+
+def start_game_single():
+    global mode
+    mode = 'SP'
+    y = 0
+    game_frame.place(x=0, y=-450)
+    while y < 450:
+        y += 1
+        options_frame.place_configure(y=y)
+        game_frame.place_configure(y=y-450)
+        time.sleep(0.001)
+        pong.update()
+    initialize()
+    loop()
+
+def go_to_menu():
+    global isRunning, diffuculty, mode
+    if not isRunning:
+        return
+    isRunning = False
+    diffuculty = 'None'
+    mode = 'TP'
+    options_frame.place(x=0, y=-450)
+    game_frame.place(x=0, y=-450)
+    start_frame.place(x=0, y=0)
+
 def initialize():
     global x_velocity, y_velocity
-
+    
     ball.place_configure(x=288, y=225)
+    pong.update()
+
+    time.sleep(0.5)
 
     randomint = randint(0, 1)
     x_velocity = randint(1, 3) if randomint == 0 else -randint(1, 3)
@@ -48,6 +91,20 @@ def inc_speed():
             y_velocity += 1
         else:
             y_velocity -= 1
+
+def set_diff(diff):
+    global diffuculty
+    if diffuculty != 'None':
+        return
+    if diff == 'Easy':
+        diffuculty = 'Easy'
+        start_game_single()
+    if diff == 'Normal':
+        diffuculty = 'Normal'
+        start_game_single()
+    if diff == 'Impossible':
+        diffuculty = 'Impossible'
+        start_game_single()
 
 def move_ball():
     global x_velocity, y_velocity
@@ -86,13 +143,16 @@ def move_ball():
         initialize()
         return
 
-def move_paddles():
+def paddle_movement():
+    global mode
     if "w" in keys_pressed:
         if left_paddle.winfo_y() >= 15:
             left_paddle.place_configure(y=left_paddle.winfo_y() - 15)
     if "s" in keys_pressed:
         if left_paddle.winfo_y() <= 335:
             left_paddle.place_configure(y=left_paddle.winfo_y() + 15)
+    if mode != 'TP':
+        return
     if "Up" in keys_pressed:
         if right_paddle.winfo_y() >= 15:
             right_paddle.place_configure(y=right_paddle.winfo_y() - 15)
@@ -100,9 +160,41 @@ def move_paddles():
         if right_paddle.winfo_y() <= 335:
             right_paddle.place_configure(y=right_paddle.winfo_y() + 15)
 
+def move_right_paddle():
+    global diffuculty, x_velocity, y_velocity
+    if diffuculty == 'Easy':
+        if x_velocity > 0:
+            if ball.winfo_y() + 12.5 < right_paddle.winfo_y() + 50:
+                if right_paddle.winfo_y() >= 15:
+                    right_paddle.place_configure(y=right_paddle.winfo_y() - 3)
+            elif ball.winfo_y() + 12.5 > right_paddle.winfo_y() + 50:
+                if right_paddle.winfo_y() <= 335:
+                    right_paddle.place_configure(y=right_paddle.winfo_y() + 3)
+    if diffuculty == 'Normal':
+        if ball.winfo_y() + 12.5 < right_paddle.winfo_y() + 50:
+            if right_paddle.winfo_y() >= 15:
+                right_paddle.place_configure(y=right_paddle.winfo_y() - 4)
+        elif ball.winfo_y() + 12.5 > right_paddle.winfo_y() + 50:
+            if right_paddle.winfo_y() <= 335:
+                right_paddle.place_configure(y=right_paddle.winfo_y() + 4)
+    if diffuculty == 'Impossible':
+        if ball.winfo_y() + 12.5 < right_paddle.winfo_y() + 50:
+            if right_paddle.winfo_y() >= 15:    
+                right_paddle.place_configure(y=right_paddle.winfo_y() - 8)
+        elif ball.winfo_y() + 12.5 > right_paddle.winfo_y() + 50:
+            if right_paddle.winfo_y() <= 335:
+                right_paddle.place_configure(y=right_paddle.winfo_y() + 8)
+
 def loop():
-    move_paddles()
+    global mode, diffuculty
+    paddle_movement()
     move_ball()
+    if mode == 'SP':
+        move_right_paddle()
+    if 'Escape' in keys_pressed:
+        go_to_menu()
+        initialize()
+        return
     pong.after(16, loop)
 
 
@@ -126,12 +218,12 @@ start_frame.place(x=0, y=0)
 pong_label = tk.Label(start_frame, text="Pong", font=("Monaco", 50), bg="black", fg="white")
 pong_label.place(x=222, y=50)
 
-# # single player button
-# single_play_button = tk.Button(start_frame, text="Single Player", width=15, font=("Monaco", 20), bg="#AAAAAA", fg="black", command=start_game)
-# single_play_button.place(x=182, y=200)
+# single player button
+single_play_button = tk.Button(start_frame, text="Single Player", width=15, font=("Monaco", 20), bg="#AAAAAA", fg="black", command=single_game_options)
+single_play_button.place(x=182, y=200)
 
 # two player button
-two_play_button = tk.Button(start_frame, text="Two Players", width=15, font=("Monaco", 20), bg="#AAAAAA", fg="black", command=start_game)
+two_play_button = tk.Button(start_frame, text="Two Player", width=15, font=("Monaco", 20), bg="#AAAAAA", fg="black", command=start_game_two)
 two_play_button.place(x=182, y=250)
 
 
@@ -162,6 +254,26 @@ right_score.place(x=400, y=20)
 ball = tk.Canvas(game_frame, width=25, height=25, bg="black", highlightthickness=0)
 ball.place(x=288, y=225)
 drawn_ball = ball.create_oval(0, 0, 25, 25, fill="white")
+
+
+# options frame
+options_frame = tk.Frame(pong, width=600, height=450, bg="black")
+
+# create diffuculty label
+diffuculty_label = tk.Label(options_frame, text="Diffuculty:", font=("Monaco", 30), bg="black", fg="white")
+diffuculty_label.place(x=180, y=50)
+
+# easy mode button
+easy_mode = tk.Button(options_frame, text="Easy", width=10, font=("Monaco", 20), bg="#AAAAAA", fg="black", command=lambda: set_diff('Easy'))
+easy_mode.place(x=145, y=200)
+
+# normal mode button
+normal_mode = tk.Button(options_frame, text="Normal", width=10, font=("Monaco", 20), bg="#AAAAAA", fg="black", command=lambda: set_diff('Normal'))
+normal_mode.place(x=305, y=200)
+
+# impossible mode button
+impossible_mode = tk.Button(options_frame, text="Impossible", width=20, font=("Monaco", 20), bg="#AAAAAA", fg="red", command=lambda: set_diff('Impossible'))
+impossible_mode.place(x=145, y=252)
 
 
 # start the game
